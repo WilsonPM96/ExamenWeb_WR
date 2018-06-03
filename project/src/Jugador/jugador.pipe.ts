@@ -1,7 +1,7 @@
 import {ArgumentMetadata, Injectable} from '@nestjs/common';
 import {PeticionErroneaException} from '../excepciones/peticion-erronea.exception';
 import * as Joi from 'joi';
-import {PeticionErroneaException1} from '../excepciones/peticion-erronea.exception1';
+import {PeticionNotfoundException} from '../excepciones/peticion-notfound.exception';
 
 @Injectable()
 export class JugadorPipe{
@@ -13,15 +13,23 @@ export class JugadorPipe{
         const{
             error}
             =Joi.validate(jsonAValidar,this._schema)
+        const{
+            errorNotFound}
+            =Joi.validate(jsonAValidar,this._schema)
         if (error) {
             throw new PeticionErroneaException(
-                {
-                    erorr: error,
-                    mensaje: 'Json no valido'
-                },
+                'Petición Inválida',
+                error,
+                10)
+        }
+        if(errorNotFound){
+            throw  new PeticionNotfoundException(
+                'No encontrado',
+                errorNotFound,
                 10
-            );
-        } else {
+            )
+        }
+        else {
             return jsonAValidar;
         }
     }

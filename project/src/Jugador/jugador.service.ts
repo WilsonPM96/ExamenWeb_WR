@@ -26,6 +26,7 @@ export class JugadorService{
     }
 }
 export interface Jugadores {
+    idJugador: number,
     numeroCamiseta:number,
     nombreCamiseta:string,
     nombreCompletoJugador:string,

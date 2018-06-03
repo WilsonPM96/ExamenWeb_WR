@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 
 export const JUGADOR_SCHEMA=Joi.object().keys({
+    idJugador: Joi.number().integer().required(),
     numeroCamiseta :Joi.number().integer().required(),
     nombreCamiseta:Joi.string().max(10).required(),
     nombreCompletoJugador:Joi.string().min(3).max(30).required(),
