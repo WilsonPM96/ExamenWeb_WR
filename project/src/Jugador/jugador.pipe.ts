@@ -4,25 +4,28 @@ import * as Joi from 'joi';
 import {PeticionNotfoundException} from '../excepciones/peticion-notfound.exception';
 
 @Injectable()
-export class JugadorPipe{
+export class JugadorPipe {
 
-    constructor (private readonly _schema){
+    constructor(private readonly _schema) {
 
     }
-    transform (jsonAValidar:any, metadata:ArgumentMetadata){
-        const{
-            error}
-            =Joi.validate(jsonAValidar,this._schema)
-        const{
-            errorNotFound}
-            =Joi.validate(jsonAValidar,this._schema)
+
+    transform(jsonAValidar: any, metadata: ArgumentMetadata) {
+        const {
+            error
+        }
+            = Joi.validate(jsonAValidar, this._schema);
+        const {
+            errorNotFound
+        }
+            = Joi.validate(jsonAValidar, this._schema);
         if (error) {
             throw new PeticionErroneaException(
                 'Petición Inválida',
                 error,
                 10)
         }
-        if(errorNotFound){
+        if (errorNotFound) {
             throw  new PeticionNotfoundException(
                 'No encontrado',
                 errorNotFound,

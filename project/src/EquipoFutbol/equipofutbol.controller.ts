@@ -1,9 +1,10 @@
-import {Body, Controller, Get, HttpCode, Param, Post, Put, ReflectMetadata, Req, Res} from '@nestjs/common';
-import {EquipofutbolService, EquiposFutbol} from './equipofutbol.service';
+import {Body, Controller, Get, Param, Post, Put, Req, Res, UsePipes} from '@nestjs/common';
+import {EquipofutbolService} from './equipofutbol.service';
 import {EquipofutbolPipe} from './equipofutbol.pipe';
 import {EQUIPOFUTBOL_SCHEMA} from './equipofutbol.schema';
 import {PeticionErroneaException} from "../excepciones/peticion-erronea.exception";
-import {error, log} from "util";
+import {error} from "util";
+import {PeticionNotfoundException} from "../excepciones/peticion-notfound.exception";
 
 @Controller('Equipo')
 export class EquipofutbolController {
@@ -20,8 +21,9 @@ export class EquipofutbolController {
         return response.send(sistemas_operativos);
     }
 
-   @Post('crearEquipos')
-   // @ReflectMetadata('permisos', ['privado'])
+    @UsePipes(new EquipofutbolPipe(EQUIPOFUTBOL_SCHEMA))
+    @Post('crearEquipos')
+    // @ReflectMetadata('permisos', ['privado'])
 
     crearEquiposFut(
         @Body(new EquipofutbolPipe(EQUIPOFUTBOL_SCHEMA))
@@ -29,44 +31,51 @@ export class EquipofutbolController {
     ) {
 
         const EquipoCreado = this._equipofutbolservice.crearEquiposFut(nuevoEquipo);
-        return nuevoEquipo;
-   }
-
-    @Get(':id')
-    obtenerUno(@Param(EQUIPOFUTBOL_SCHEMA.equipoFutbolId) id, @Req() request,
-               @Res() response) {
-        if(id.content==EQUIPOFUTBOL_SCHEMA.equipoFutbolId){
-            const eqp = this._equipofutbolservice.mostrarEquiposFut();
-            return response.send(eqp);
+        if (EquipoCreado) {
+            return nuevoEquipo;
         } else {
             throw new PeticionErroneaException(
-                {
-                    erorr: error,
-                    mensaje: 'Los datos ingresados en la ruta /Equipos/# son erroneos'
-                },
+                'Petición Inválida, los datos ingresados no son suficientes',
+                error,
                 10
-            );
+            )
+        }
+
+    }
+
+    @Get(':id')
+    obtenerUno(@Param() id, @Req() request,
+               @Res() response) {
+        const eqp = this._equipofutbolservice.obtenerUno(id.id);
+        if (eqp) {
+            return response.send(eqp);
+        }
+        else {
+            throw  new PeticionNotfoundException(
+                'Id No encontrado',
+                error,
+                10
+            )
         }
 
 
     }
+
     @Put(':id')
-    editarUno(@Param() id, @Body(new EquipofutbolPipe(EQUIPOFUTBOL_SCHEMA)) updateEquipo, @Req() request,
+    editarUno(@Param() id, @Body() updateEquipo, @Req() request,
               @Res() response) {
-        console.log(id.id);
-        console.log()
-        if(id==EQUIPOFUTBOL_SCHEMA.equipoFutbolId){
-            const update =this._equipofutbolservice.actualizarEquiposFut(updateEquipo);
-            return updateEquipo;
-        } else {
-            throw new PeticionErroneaException(
-                {
-                    erorr: error,
-                    mensaje: 'Los datos ingresados en la ruta /Equipos/# son erroneos'
-                },
-                10
-            );
+        const update = this._equipofutbolservice.editarUno(id.id, updateEquipo.nombre, updateEquipo.liga, updateEquipo.fechaCreacion, updateEquipo.numeroCopasInternacionales, updateEquipo.campeonActual);
+        if (update) {
+            return response.send(update);
         }
+        else {
+            throw  new PeticionNotfoundException(
+                'Id No encontrado',
+                error,
+                10
+            )
+        }
+
 
     }
 

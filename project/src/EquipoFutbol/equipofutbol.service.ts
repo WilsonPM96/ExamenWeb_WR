@@ -1,5 +1,4 @@
 import {Injectable} from '@nestjs/common';
-import {createWhile} from "typescript";
 
 @Injectable()
 export class EquipofutbolService {
@@ -14,25 +13,34 @@ export class EquipofutbolService {
         return this.equipos_futbol;
     }
 
-    actualizarEquiposFut(EquiposFut: EquiposFutbol): EquiposFutbol[]{
-
-        const indice = this.equipos_futbol
-            .findIndex(
-                (equipoObjeto) => equipoObjeto === EquiposFut);
-
-        this.equipos_futbol.slice(indice, 1);
-        this.equipos_futbol.push(EquiposFut)
-        return this.equipos_futbol;
+    obtenerUno(id) {
+        return this.equipos_futbol[id - 1];
     }
-}
-export interface EquiposFutbol {
-    equipoFutbolId: number,
-    nombre: string,
-    liga: number,
-    fechaCreacion: Date,
-    numeroCopasInternacionales: number,
-    campeonActual: boolean,
 
+    editarUno(id, nombre, liga, fechaCreacion, numeroCopasInternacionales, campeonActual) {
+        let arregloAux = this.obtenerUno(id);
+        arregloAux.nombre = nombre;
+            arregloAux.liga = liga;
+            arregloAux.fechaCreacion = fechaCreacion;
+            arregloAux.numeroCopasInternacionales = numeroCopasInternacionales;
+            arregloAux.campeonActual = campeonActual;
+        return arregloAux;
+    };
+
+
+}
+
+export class EquiposFutbol {
+    constructor(
+        public equipoFutbolId: number,
+        public nombre: string,
+        public liga: string,
+        public fechaCreacion: Date,
+        public numeroCopasInternacionales: number,
+        public campeonActual: boolean,
+    ) {
+
+    }
 
 }
 

@@ -1,36 +1,76 @@
-import {Body, Controller, Get, HttpCode, Param, Post, Put, Req, Res} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Put, Req, Res, UsePipes} from '@nestjs/common';
 import {JugadorService} from './jugador.service';
 import {JugadorPipe} from './jugador.pipe';
 import {JUGADOR_SCHEMA} from './jugador.schema';
+import {error} from "util";
+import {PeticionErroneaException} from "../excepciones/peticion-erronea.exception";
+import {PeticionNotfoundException} from "../excepciones/peticion-notfound.exception";
 
 @Controller('Jugador')
 export class JugadorController {
 
-    constructor (private _jugadorservice: JugadorService){
+    constructor(private _jugadorservice: JugadorService) {
     }
-    @Get("listarTodos")
-    mostrarjugador(@Res() response){
-            const jug = this._jugadorservice.mostrar_jugador();
-            return response.send(jug);
-        }
 
+    @Get("listarTodos")
+    mostrarjugador(@Res() response) {
+        const jug = this._jugadorservice.mostrar_jugador();
+        return response.send(jug);
+    }
+
+    @UsePipes(new JugadorPipe(JUGADOR_SCHEMA))
     @Post('crearJugadores')
     crearjugador(@Body(new JugadorPipe(JUGADOR_SCHEMA))
-    nuevojug){
-        const jugNuevo =this._jugadorservice.crear_jugador(nuevojug);
-        return nuevojug;
+                     nuevojug) {
+        const jugNuevo = this._jugadorservice.crear_jugador(nuevojug);
+        if (jugNuevo) {
+
+            return nuevojug;
+
+        } else {
+            throw new PeticionErroneaException(
+                'Petición Inválida, los datos ingresados no son suficientes',
+                error,
+                10
+            )
+        }
+
     }
 
-    @Get(':numero')
-    obtenerUno(@Param(JUGADOR_SCHEMA.nombre) nombre, @Req() request,
+    @Get(':id')
+    obtenerUno(@Param() id, @Req() request,
                @Res() response) {
-        return response.send(nombre);
+        const jug = this._jugadorservice.obtenerUno(id.id);
+        if (jug) {
+            return response.send(jug);
+        }
+        else {
+            throw  new PeticionNotfoundException(
+                'Id No encontrado',
+                error,
+                10
+            )
+        }
+
+
     }
 
-    @Put(':numero')
-    editarUno(@Param(JUGADOR_SCHEMA.nombre) nombre, @Body(new JugadorPipe(JUGADOR_SCHEMA)) updateApp, @Req() request,
+    @Put(':id')
+    editarUno(@Param() id, @Body() updateJuga, @Req() request,
               @Res() response) {
-        return response.send(updateApp);
+        const update = this._jugadorservice.editarUno(id.id, updateJuga.numeroCamiseta, updateJuga.nombreCamiseta, updateJuga.nombreCompletoJugador,
+            updateJuga.poderEspecialDos, updateJuga.fechaIngresoEquipo, updateJuga.goles, updateJuga.equipoFutbolId);
+        if (update) {
+            return response.send(update);
+        } else {
+            throw  new PeticionNotfoundException(
+                'Id No encontrado',
+                error,
+                10
+            )
+        }
+
+
     }
 
 }

@@ -1,37 +1,46 @@
 import {Injectable} from '@nestjs/common';
-import {EquiposFutbol} from "../EquipoFutbol/equipofutbol.service";
 
 @Injectable()
-export class JugadorService{
-    jugadores : Jugadores [] = [];
+export class JugadorService {
+    jugadores: Jugadores [] = [];
 
-    crear_jugador(jugador:Jugadores): Jugadores[]{
+    crear_jugador(jugador: Jugadores): Jugadores[] {
         this.jugadores.push(jugador);
         return this.jugadores;
     }
 
-    mostrar_jugador():Jugadores []{
+    mostrar_jugador(): Jugadores [] {
         return this.jugadores;
     }
 
-    actualizar_jugador(jugador: Jugadores): Jugadores[]{
-
-        const indice = this.jugadores
-            .findIndex(
-                (jugadorObjeto) => jugadorObjeto === jugador);
-
-        this.jugadores.slice(indice, 1);
-        this.jugadores.push(jugador)
-        return this.jugadores;
+    obtenerUno(id) {
+        return this.jugadores[id - 1];
     }
+
+    editarUno(id, numcamiseta, nomcamiseta, nombreCompleto, poderEspecial, fechaIngreso, goles, equipoFutbolId) {
+        let arregloAux = this.obtenerUno(id);
+        arregloAux.numeroCamiseta = numcamiseta;
+        arregloAux.nombreCamiseta = nomcamiseta;
+        arregloAux.nombreCompletoJugador = nombreCompleto;
+        arregloAux.poderEspecialDos = poderEspecial;
+        arregloAux.fechaIngresoEquipo = fechaIngreso;
+        arregloAux.goles = goles;
+        arregloAux.equipoFutbolId = equipoFutbolId;
+        return arregloAux;
+    };
+
 }
-export interface Jugadores {
-    idJugador: number,
-    numeroCamiseta:number,
-    nombreCamiseta:string,
-    nombreCompletoJugador:string,
-    poderEspecialDos:string,
-    fechaIngresoEquipo:Date,
-    goles:number,
-    equipoFutbolId:number,
+
+export class Jugadores {
+    constructor(
+        public idJugador: number,
+        public numeroCamiseta: number,
+        public nombreCamiseta: string,
+        public nombreCompletoJugador: string,
+        public poderEspecialDos: string,
+        public fechaIngresoEquipo: Date,
+        public goles: number,
+        public equipoFutbolId: number) {
+
+    }
 }

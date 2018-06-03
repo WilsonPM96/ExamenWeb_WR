@@ -29,12 +29,10 @@ export class AutorizacionController{
 
         } else {
             throw new PeticionErroneaException(
-                {
-                    erorr: error,
-                    mensaje: 'Los datos ingresados son erroneos'
-                },
-                10
-            );
+                'No se puede iniciar Sesion, datos de ingreso invalidos',
+                error,
+                10)
+
         }
 
     }
